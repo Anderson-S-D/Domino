@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "463310128147",
+    "project_id": "hockeygame-86dfd",
+    "storage_bucket": "hockeygame-86dfd.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:463310128147:android:7fe034cf0a1b9bee62abe6",
+        "android_client_info": {
+          "package_name": "com.udistrital.hockeygame"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDPN0M0Bko_pmvpZRWChl2h2Qw4Yc53U0s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
