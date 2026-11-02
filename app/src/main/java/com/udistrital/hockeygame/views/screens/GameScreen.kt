@@ -1,379 +1,278 @@
 package com.udistrital.hockeygame.views.screens
 
-import android.hardware.Sensor
-import android.hardware.SensorEvent
-import android.hardware.SensorEventListener
-import android.hardware.SensorManager
-import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.udistrital.hockeygame.R
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.delay
-import kotlin.math.sqrt
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.udistrital.hockeygame.viewmodels.GameViewModel
+import com.udistrital.hockeygame.views.components.*
+import com.udistrital.hockeygame.views.theme.*
 
 @Composable
 fun GameScreen(
-    onBack: () -> Unit
+    gameViewModel: GameViewModel = viewModel(),
+    onBackToHome: () -> Unit
 ) {
-
-    val context = LocalContext.current
-
-    var gyroX by remember { mutableFloatStateOf(0f) }
-    var gyroY by remember { mutableFloatStateOf(0f) }
-    var gyroZ by remember { mutableFloatStateOf(0f) }
-
-    var accelX by remember { mutableFloatStateOf(0f) }
-    var accelY by remember { mutableFloatStateOf(0f) }
-    var accelZ by remember { mutableFloatStateOf(0f) }
-
-    val sensorManager = remember {
-        context.getSystemService(SensorManager::class.java)
-    }
-
-    DisposableEffect(sensorManager) {
-
-        val listener = object : SensorEventListener {
-
-            override fun onSensorChanged(event: SensorEvent) {
-
-                when (event.sensor.type) {
-
-                    Sensor.TYPE_GYROSCOPE -> {
-                        gyroX = event.values[0]
-                        gyroY = event.values[1]
-                        gyroZ = event.values[2]
-                    }
-
-                    Sensor.TYPE_ACCELEROMETER -> {
-                        accelX = event.values[0]
-                        accelY = event.values[1]
-                        accelZ = event.values[2]
-                    }
-                }
-            }
-
-            override fun onAccuracyChanged(
-                sensor: Sensor?,
-                accuracy: Int
-            ) {
-            }
-        }
-
-        sensorManager.registerListener(
-            listener,
-            sensorManager.getDefaultSensor(
-                Sensor.TYPE_GYROSCOPE
-            ),
-            SensorManager.SENSOR_DELAY_GAME
-        )
-
-        sensorManager.registerListener(
-            listener,
-            sensorManager.getDefaultSensor(
-                Sensor.TYPE_ACCELEROMETER
-            ),
-            SensorManager.SENSOR_DELAY_GAME
-        )
-
-        onDispose {
-            sensorManager.unregisterListener(listener)
-        }
-    }
-    var playerX by remember {
-        mutableFloatStateOf(0f)
-    }
-
-    LaunchedEffect(accelX) {
-        playerX += -accelX * 5f
-    }
-
-    var ballX by remember {
-        mutableFloatStateOf(0f)
-    }
-
-    var ballY by remember {
-        mutableFloatStateOf(0f)
-    }
-
-    var ballVelocityX by remember {
-        mutableFloatStateOf(0f)
-    }
-
-    var ballVelocityY by remember {
-        mutableFloatStateOf(0f)
-    }
-
-    var canvasWidth by remember {
-        mutableFloatStateOf(0f)
-    }
-
-    var canvasHeight by remember {
-        mutableFloatStateOf(0f)
-    }
-
-    var ballInitialized by remember {
-        mutableStateOf(false)
-    }
+    val uiState by gameViewModel.uiState.collectAsState()
+    var showQuitDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        while (isActive) {
-            if (canvasWidth > 0f && canvasHeight > 0f) {
-                if (!ballInitialized) {
+        if (uiState.gameState == null) {
+            gameViewModel.startNewGame()
+        }
+    }
 
-                    ballX = canvasWidth / 2f
-                    ballY = canvasHeight / 2f
+    val state = uiState.gameState ?: return
 
-                    ballVelocityX = 0f
-                    ballVelocityY = 7f
+    val myPlayer = state.players.firstOrNull() ?: return
+    val opponentPlayer = state.players.getOrNull(1)
+    val isMyTurn = state.turnPlayerId == myPlayer.id
+    val canPlay = myPlayer.canPlay(state.board)
 
-                    ballInitialized = true
-                }
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(CasinoDarkFelt)
+            .padding(14.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.SpaceBetween,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Header: Marcador y Turnos
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = CasinoEmerald),
+                shape = RoundedCornerShape(18.dp),
+                elevation = CardDefaults.cardElevation(6.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 14.dp, vertical = 10.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(onClick = { showQuitDialog = true }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Salir",
+                            tint = CasinoGold
+                        )
+                    }
 
-                ballX += ballVelocityX
-                ballY += ballVelocityY
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = if (isMyTurn) "¡ES TU TURNO!" else "TURNO DE ${opponentPlayer?.name ?: "OPONENTE"}",
+                            color = if (isMyTurn) CasinoGold else CasinoTextMuted,
+                            fontWeight = FontWeight.ExtraBold,
+                            fontSize = 14.sp
+                        )
+                        Text(
+                            text = "Pozo: ${state.deck.size} fichas",
+                            color = CasinoGoldLight,
+                            fontSize = 11.sp
+                        )
+                    }
 
-                val ballRadius = 60f
-                val playerRadius = 80f
-
-                val playerY = canvasHeight - 180f
-
-                val playerXLimitado = playerX.coerceIn(
-                    100f,
-                    canvasWidth - 100f
-                )
-
-                if (ballX - ballRadius <= 0f) {
-                    ballX = ballRadius
-                    ballVelocityX = -ballVelocityX
-                }
-
-                if (ballX + ballRadius >= canvasWidth) {
-                    ballX = canvasWidth - ballRadius
-                    ballVelocityX = -ballVelocityX
-                }
-
-                if (ballY - ballRadius <= 0f) {
-                    onBack()
-                }
-
-                val distanciaJugador = sqrt(
-                    (ballX - playerXLimitado) *
-                            (ballX - playerXLimitado) +
-                            (ballY - playerY) *
-                            (ballY - playerY)
-                )
-
-                if (distanciaJugador <= ballRadius + playerRadius && ballVelocityY > 0f) {
-                    ballY =
-                        playerY -
-                                playerRadius -
-                                ballRadius
-                    ballVelocityY = -ballVelocityY
-
-                    val diferenciaX =
-                        ballX - playerXLimitado
-
-                    ballVelocityX =
-                        (diferenciaX * 0.08f)
-                            .coerceIn(-8f, 8f)
-                }
-
-                val enemyY = 180f
-                val enemyX = canvasWidth / 2f
-
-                val distanciaEnemigo = sqrt(
-                    (ballX - enemyX) *
-                            (ballX - enemyX) +
-                            (ballY - enemyY) *
-                            (ballY - enemyY)
-                )
-
-                if (distanciaEnemigo <= ballRadius + playerRadius && ballVelocityY < 0f) {
-
-                    ballY = enemyY + playerRadius + ballRadius
-
-                    ballVelocityY = -ballVelocityY
-
-                    val diferenciaX =
-                        ballX - enemyX
-
-                    ballVelocityX =
-                        (diferenciaX * 0.08f)
-                            .coerceIn(-8f, 8f)
-                }
-
-                if (ballY + ballRadius >= canvasHeight) {
-                    onBack()
+                    Surface(
+                        color = CasinoDarkFelt,
+                        shape = RoundedCornerShape(10.dp)
+                    ) {
+                        Text(
+                            text = "${myPlayer.score} - ${opponentPlayer?.score ?: 0}",
+                            color = CasinoGold,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp,
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                        )
+                    }
                 }
             }
 
-            delay(5L)
+            // Banner de Mensaje / Eventos Aleatorios
+            if (uiState.activeEventMessage != null) {
+                Surface(
+                    color = CasinoGold,
+                    shape = RoundedCornerShape(14.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 14.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = uiState.activeEventMessage!!,
+                            color = CasinoDarkFelt,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.weight(1f)
+                        )
+                        TextButton(onClick = { gameViewModel.dismissEventMessage() }) {
+                            Text("OK", color = CasinoDarkFelt, fontWeight = FontWeight.Black)
+                        }
+                    }
+                }
+            }
+
+            if (uiState.errorMessage != null) {
+                Surface(
+                    color = CasinoRed,
+                    shape = RoundedCornerShape(14.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = uiState.errorMessage!!,
+                        color = CasinoTextWhite,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(10.dp)
+                    )
+                }
+            }
+
+            // Tablero Principal
+            BoardView(
+                board = state.board,
+                selectedTile = uiState.selectedTile,
+                onPlayLeft = { gameViewModel.playTile(onLeftSide = true) },
+                onPlayRight = { gameViewModel.playTile(onLeftSide = false) }
+            )
+
+            // Zona de Poderes
+            PowerBar(
+                activePower = uiState.activePower,
+                onPowerSelected = { power -> gameViewModel.activatePower(power) },
+                remainingSkipPowers = myPlayer.remainingSkipPowers,
+                isMyTurn = isMyTurn
+            )
+
+            // Mano del Jugador
+            HandView(
+                hand = myPlayer.hand,
+                selectedTile = uiState.selectedTile,
+                onTileSelected = { tile -> gameViewModel.selectTile(tile) },
+                onDrawTile = { gameViewModel.drawTile() },
+                onPassTurn = { gameViewModel.passTurn() },
+                deckSize = state.deck.size,
+                canPlay = canPlay,
+                isMyTurn = isMyTurn
+            )
         }
     }
 
-    Box(
-        modifier = Modifier.fillMaxSize()
-    ) {
-
-        Canvas(
-            modifier = Modifier.fillMaxSize()
-        ) {
-
-            canvasWidth = size.width
-            canvasHeight = size.height
-
-            val centroX = size.width / 2f
-
-            val playerY = size.height - 180f
-
-            val playerXLimitado = playerX.coerceIn(
-                100f,
-                size.width - 100f
-            )
-
-            drawRect(
-                color = Color(0xFF3498DB),
-                topLeft = Offset.Zero,
-                size = size
-            )
-
-            drawCircle(
-                color = Color(0xFFE74C3C),
-                radius = 80f,
-                center = Offset(
-                    playerXLimitado,
-                    playerY
-                )
-            )
-
-            drawCircle(
-                color = Color(0xFFC0392B),
-                radius = 80f,
-                center = Offset(
-                    playerXLimitado,
-                    playerY
-                ),
-                style = Stroke(width = 8f)
-            )
-
-            drawCircle(
-                color = Color.Black,
-                radius = 60f,
-                center = Offset(
-                    ballX,
-                    ballY
-                )
-            )
-
-            drawCircle(
-                color = Color(0xFF212121),
-                radius = 48f,
-                center = Offset(
-                    ballX,
-                    ballY
-                )
-            )
-
-            val enemyY = 180f
-
-            drawCircle(
-                color = Color(0xFF2ECC71),
-                radius = 80f,
-                center = Offset(
-                    centroX,
-                    enemyY
-                )
-            )
-
-            drawCircle(
-                color = Color(0xFF27AE60),
-                radius = 80f,
-                center = Offset(
-                    centroX,
-                    enemyY
-                ),
-                style = Stroke(width = 8f)
-            )
-        }
-
-        Text(
-            text = """
-                GIROSCOPIO
-                
-                X: %.2f
-                Y: %.2f
-                Z: %.2f
-                
-                ACELERÓMETRO
-                
-                X: %.2f
-                Y: %.2f
-                Z: %.2f
-            """.trimIndent().format(
-                gyroX,
-                gyroY,
-                gyroZ,
-                accelX,
-                accelY,
-                accelZ
-            ),
-            modifier = Modifier.align(
-                Alignment.TopStart
-            ),
-            color = Color.White,
-            fontSize = 16.sp
-        )
-
-        Button(
-            onClick = {
-                onBack()
+    // Modal de Confirmación para Salir
+    if (showQuitDialog) {
+        AlertDialog(
+            onDismissRequest = { showQuitDialog = false },
+            title = { Text("¿Abandonar Partida?", color = CasinoGold, fontWeight = FontWeight.Bold) },
+            text = { Text("Si sales ahora perderás tu progreso en la partida actual.", color = CasinoTextWhite) },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showQuitDialog = false
+                        onBackToHome()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = CasinoRed)
+                ) {
+                    Text("Abandonar")
+                }
             },
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .padding(16.dp)
-                .width(120.dp)
-                .height(48.dp)
-                .shadow(
-                    10.dp,
-                    RoundedCornerShape(18.dp)
-                ),
-            shape = RoundedCornerShape(18.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF00AEFF)
-            )
-        ) {
-
-            Text(
-                text = stringResource(
-                    R.string.home_btn_back
-                ),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-        }
+            dismissButton = {
+                TextButton(onClick = { showQuitDialog = false }) {
+                    Text("Cancelar", color = CasinoTextMuted)
+                }
+            },
+            containerColor = CasinoEmerald
+        )
     }
-}
 
-@Preview
-@Composable
-fun GameScreenPreview(){
-    GameScreen {  }
+    // Modal de Resultado (Game Over)
+    if (state.isFinished) {
+        val winner = state.players.firstOrNull { it.id == state.winnerId }
+        val isWinner = winner?.id == myPlayer.id
+
+        AlertDialog(
+            onDismissRequest = {},
+            icon = {
+                Box(
+                    modifier = Modifier
+                        .size(56.dp)
+                        .background(CasinoGold, CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Star,
+                        contentDescription = null,
+                        tint = CasinoDarkFelt,
+                        modifier = Modifier.size(36.dp)
+                    )
+                }
+            },
+            title = {
+                Text(
+                    text = if (isWinner) "¡HAS GANADO!" else if (winner != null) "¡GANÓ ${winner.name.uppercase()}!" else "¡EMPATE!",
+                    color = CasinoGold,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.ExtraBold
+                )
+            },
+            text = {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = "Resultado final de la partida de Dominó Caos:",
+                        color = CasinoTextMuted,
+                        fontSize = 13.sp
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    state.players.forEach { p ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(p.name, color = CasinoTextWhite, fontWeight = FontWeight.Bold)
+                            Text("${p.handScore} pts (Poderes: ${p.skipPowersUsed})", color = CasinoGoldLight)
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = { gameViewModel.startNewGame() },
+                    colors = ButtonDefaults.buttonColors(containerColor = CasinoGold, contentColor = CasinoDarkFelt),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text("Jugar de nuevo", fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onBackToHome) {
+                    Text("Volver al Menú", color = CasinoTextMuted)
+                }
+            },
+            containerColor = CasinoEmerald
+        )
+    }
 }

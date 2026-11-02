@@ -16,24 +16,87 @@ class RoomViewModel : ViewModel() {
     private val _model = MutableStateFlow<RoomModel?>(null)
     val model: StateFlow<RoomModel?> = _model.asStateFlow()
 
+    private val _error = MutableStateFlow<String?>(null)
+    val error: StateFlow<String?> = _error.asStateFlow()
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
     fun createRoom() {
-        val currentUser = auth.currentUser ?: return
+        val currentUser = auth.currentUser
         val host = PlayerModel(
-            uid = currentUser.uid,
-            email = currentUser.email.orEmpty()
+            uid = currentUser?.uid ?: "local-host-id",
+            email = currentUser?.email.orEmpty(),
+            name = currentUser?.displayName.orEmpty()
         )
         val room = repository.createRoom(host)
         _model.value = room
+        _error.value = null
+
+        repository.listenToRoom(room.code) { updated ->
+            _model.value = updated
+        }
     }
 
-    fun joinOpenRoom() {
-        val currentUser = auth.currentUser ?: return
-        val guest = PlayerModel(
-            uid = currentUser.uid,
-            email = currentUser.email.orEmpty()
-        )
-        repository.joinOpenRoom(guest) { room ->
-            _model.value = room
+    fun joinRoomByCode(code: String, onComplete: (Boolean) -> Unit) {
+        if (code.isBlank()) {
+            _error.value = "Ingresa el código de la sala"
+            onComplete(false)
+            return
         }
+
+        _isLoading.value = true
+        _error.value = null
+
+        val currentUser = auth.currentUser
+        val guest = PlayerModel(
+            uid = currentUser?.uid ?: "local-guest-id",
+            email = currentUser?.email.orEmpty(),
+            name = currentUser?.displayName.orEmpty()
+        )
+
+        repository.joinRoomByCode(code, guest) { room, errorMsg ->
+            _isLoading.value = false
+            if (room != null) {
+                _model.value = room
+                repository.listenToRoom(room.code) { updated ->
+                    _model.value = updated
+                }
+                onComplete(true)
+            } else {
+                _error.value = errorMsg ?: "No se pudo ingresar a la sala"
+                onComplete(false)
+            }
+        }
+    }
+
+    fun joinOpenRoom(onComplete: (Boolean) -> Unit = {}) {
+        _isLoading.value = true
+        _error.value = null
+
+        val currentUser = auth.currentUser
+        val guest = PlayerModel(
+            uid = currentUser?.uid ?: "local-guest-id",
+            email = currentUser?.email.orEmpty(),
+            name = currentUser?.displayName.orEmpty()
+        )
+
+        repository.joinOpenRoom(guest) { room, errorMsg ->
+            _isLoading.value = false
+            if (room != null) {
+                _model.value = room
+                repository.listenToRoom(room.code) { updated ->
+                    _model.value = updated
+                }
+                onComplete(true)
+            } else {
+                _error.value = errorMsg ?: "No hay salas disponibles"
+                onComplete(false)
+            }
+        }
+    }
+
+    fun clearError() {
+        _error.value = null
     }
 }
