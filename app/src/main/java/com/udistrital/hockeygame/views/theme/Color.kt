@@ -2,10 +2,23 @@ package com.udistrital.hockeygame.views.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+// Paleta Casino Verde Elegante
+val CasinoDarkFelt = Color(0xFF092215)
+val CasinoFeltGreen = Color(0xFF0E3B27)
+val CasinoEmerald = Color(0xFF185233)
+val CasinoEmeraldLight = Color(0xFF27AE60)
+val CasinoGold = Color(0xFFD4AF37)
+val CasinoGoldDark = Color(0xFFAA8929)
+val CasinoGoldLight = Color(0xFFFBE8A6)
+val CasinoRed = Color(0xFFA93226)
+val CasinoTextWhite = Color(0xFFFFFFFF)
+val CasinoTextMuted = Color(0xFFA3C3B1)
+val CasinoCardBg = Color(0x1AFFFFFF)
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+// Legacy compatibility
+val Purple80 = CasinoGold
+val PurpleGrey80 = CasinoEmerald
+val Pink80 = CasinoGoldLight
+val Purple40 = CasinoGoldDark
+val PurpleGrey40 = CasinoFeltGreen
+val Pink40 = CasinoRed

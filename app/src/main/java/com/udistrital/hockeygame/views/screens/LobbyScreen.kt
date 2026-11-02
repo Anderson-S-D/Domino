@@ -11,13 +11,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.udistrital.hockeygame.views.theme.*
 
 @Composable
 fun LobbyScreen(
@@ -32,7 +32,7 @@ fun LobbyScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF0F172A))
+            .background(CasinoDarkFelt)
             .padding(24.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -43,7 +43,7 @@ fun LobbyScreen(
         ) {
             Text(
                 text = "Lobby de Espera",
-                color = Color.White,
+                color = CasinoTextWhite,
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -52,7 +52,7 @@ fun LobbyScreen(
 
             Text(
                 text = "Comparte este código con tu rival",
-                color = Color.White.copy(alpha = 0.8f),
+                color = CasinoTextMuted,
                 fontSize = 15.sp
             )
 
@@ -61,7 +61,7 @@ fun LobbyScreen(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
-                    containerColor = Color.White.copy(alpha = 0.08f)
+                    containerColor = CasinoEmerald
                 ),
                 shape = RoundedCornerShape(20.dp),
                 elevation = CardDefaults.cardElevation(8.dp)
@@ -73,24 +73,22 @@ fun LobbyScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    if (roomCode != null){
+                    if (roomCode != null) {
                         Column {
                             Text(
                                 text = "CÓDIGO DE SALA",
-                                color = Color.White.copy(alpha = 0.6f),
+                                color = CasinoTextMuted,
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold
                             )
 
                             Text(
                                 text = roomCode,
-                                color = Color(0xFFFF9800),
+                                color = CasinoGold,
                                 fontSize = 28.sp,
                                 fontWeight = FontWeight.ExtraBold,
                                 letterSpacing = 2.sp
                             )
-
-
                         }
                         IconButton(
                             onClick = { clipboardManager.setText(AnnotatedString(roomCode)) }
@@ -98,12 +96,10 @@ fun LobbyScreen(
                             Icon(
                                 imageVector = Icons.Default.ContentCopy,
                                 contentDescription = "Copiar Código",
-                                tint = Color.White
+                                tint = CasinoGoldLight
                             )
                         }
                     }
-
-
                 }
             }
 
@@ -112,7 +108,7 @@ fun LobbyScreen(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
-                    containerColor = Color.White.copy(alpha = 0.08f)
+                    containerColor = CasinoEmerald
                 ),
                 shape = RoundedCornerShape(24.dp),
                 elevation = CardDefaults.cardElevation(8.dp)
@@ -125,7 +121,7 @@ fun LobbyScreen(
                 ) {
                     Text(
                         text = "JUGADORES",
-                        color = Color.White.copy(alpha = 0.7f),
+                        color = CasinoGoldLight,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -139,27 +135,27 @@ fun LobbyScreen(
                         Icon(
                             imageVector = Icons.Default.Person,
                             contentDescription = null,
-                            tint = Color(0xFF00AEFF),
+                            tint = CasinoGold,
                             modifier = Modifier.size(28.dp)
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
                             text = hostName,
-                            color = Color.White,
+                            color = CasinoTextWhite,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.weight(1f)
                         )
                         Text(
                             text = "Anfitrión",
-                            color = Color(0xFF00AEFF),
+                            color = CasinoGold,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }
 
                     Spacer(modifier = Modifier.height(12.dp))
-                    HorizontalDivider(color = Color.White.copy(alpha = 0.1f))
+                    HorizontalDivider(color = CasinoTextMuted.copy(alpha = 0.2f))
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Row(
@@ -169,13 +165,13 @@ fun LobbyScreen(
                         Icon(
                             imageVector = Icons.Default.Person,
                             contentDescription = null,
-                            tint = if (guestName != null) Color(0xFFFF9800) else Color.White.copy(alpha = 0.3f),
+                            tint = if (guestName != null) CasinoEmeraldLight else CasinoTextMuted.copy(alpha = 0.4f),
                             modifier = Modifier.size(28.dp)
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
                             text = guestName ?: "Esperando jugador...",
-                            color = if (guestName != null) Color.White else Color.White.copy(alpha = 0.4f),
+                            color = if (guestName != null) CasinoTextWhite else CasinoTextMuted,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.weight(1f)
@@ -184,13 +180,13 @@ fun LobbyScreen(
                         if (guestName == null) {
                             CircularProgressIndicator(
                                 modifier = Modifier.size(18.dp),
-                                color = Color(0xFFFF9800),
+                                color = CasinoGold,
                                 strokeWidth = 2.dp
                             )
                         } else {
                             Text(
                                 text = "Listo",
-                                color = Color(0xFFFF9800),
+                                color = CasinoEmeraldLight,
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold
                             )
@@ -210,15 +206,16 @@ fun LobbyScreen(
                     .shadow(8.dp, RoundedCornerShape(16.dp)),
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF00AEFF),
-                    disabledContainerColor = Color(0xFF00AEFF).copy(alpha = 0.3f)
+                    containerColor = CasinoGold,
+                    contentColor = CasinoDarkFelt,
+                    disabledContainerColor = CasinoGold.copy(alpha = 0.3f),
+                    disabledContentColor = CasinoDarkFelt.copy(alpha = 0.5f)
                 )
             ) {
                 Text(
                     text = "INICIAR PARTIDA",
                     fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    fontWeight = FontWeight.Bold
                 )
             }
 
@@ -227,8 +224,9 @@ fun LobbyScreen(
             TextButton(onClick = onCancelClick) {
                 Text(
                     text = "Cancelar y salir",
-                    color = Color.White.copy(alpha = 0.7f),
-                    fontSize = 14.sp
+                    color = CasinoRed,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold
                 )
             }
         }

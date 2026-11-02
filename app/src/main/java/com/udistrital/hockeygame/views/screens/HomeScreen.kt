@@ -1,24 +1,24 @@
 package com.udistrital.hockeygame.views.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Casino
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.SportsHockey
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.udistrital.hockeygame.R
+import com.udistrital.hockeygame.views.theme.*
 
 @Composable
 fun HomeScreen(
@@ -28,7 +28,7 @@ fun HomeScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF0F172A))
+            .background(CasinoDarkFelt)
             .padding(24.dp)
     ) {
         Column(
@@ -44,13 +44,14 @@ fun HomeScreen(
                 Box(
                     modifier = Modifier
                         .size(80.dp)
-                        .background(Color(0xFF00AEFF).copy(alpha = 0.15f), RoundedCornerShape(24.dp)),
+                        .background(CasinoEmerald, CircleShape)
+                        .border(2.dp, CasinoGold, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Default.SportsHockey,
+                        imageVector = Icons.Default.Casino,
                         contentDescription = null,
-                        tint = Color(0xFF00AEFF),
+                        tint = CasinoGold,
                         modifier = Modifier.size(44.dp)
                     )
                 }
@@ -58,8 +59,8 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.height(20.dp))
 
                 Text(
-                    text = stringResource(R.string.home_title),
-                    color = Color.White,
+                    text = "DOMINÓ CAOS",
+                    color = CasinoGold,
                     fontSize = 32.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -67,8 +68,8 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.height(6.dp))
 
                 Text(
-                    text = "Ready for the next match?",
-                    color = Color.White.copy(alpha = 0.7f),
+                    text = "¿Listo para la próxima partida de fichas?",
+                    color = CasinoTextMuted,
                     fontSize = 15.sp
                 )
             }
@@ -76,7 +77,7 @@ fun HomeScreen(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
-                    containerColor = Color.White.copy(alpha = 0.08f)
+                    containerColor = CasinoEmerald
                 ),
                 shape = RoundedCornerShape(24.dp),
                 elevation = CardDefaults.cardElevation(8.dp)
@@ -88,8 +89,8 @@ fun HomeScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "ESTADÍSTICAS",
-                        color = Color.White.copy(alpha = 0.6f),
+                        text = "ESTADÍSTICAS Y SALDO",
+                        color = CasinoGoldLight,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -101,9 +102,9 @@ fun HomeScreen(
                         horizontalArrangement = Arrangement.Center
                     ) {
                         Text(
-                            text = stringResource(R.string.home_score),
-                            color = Color.White,
-                            fontSize = 20.sp,
+                            text = "Último puntaje: 0 pts",
+                            color = CasinoTextWhite,
+                            fontSize = 18.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -122,20 +123,20 @@ fun HomeScreen(
                         .shadow(8.dp, RoundedCornerShape(18.dp)),
                     shape = RoundedCornerShape(18.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF00AEFF)
+                        containerColor = CasinoGold,
+                        contentColor = CasinoDarkFelt
                     )
                 ) {
                     Icon(
                         imageVector = Icons.Default.PlayArrow,
                         contentDescription = null,
-                        tint = Color.White,
+                        tint = CasinoDarkFelt,
                         modifier = Modifier.padding(end = 8.dp)
                     )
                     Text(
-                        text = stringResource(R.string.home_btn_play),
+                        text = "JUGAR PRÁCTICA",
                         fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        fontWeight = FontWeight.Bold
                     )
                 }
 
@@ -147,27 +148,27 @@ fun HomeScreen(
                         .shadow(8.dp, RoundedCornerShape(18.dp)),
                     shape = RoundedCornerShape(18.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFFF9800)
+                        containerColor = CasinoEmeraldLight,
+                        contentColor = CasinoDarkFelt
                     )
                 ) {
                     Icon(
                         imageVector = Icons.Default.Group,
                         contentDescription = null,
-                        tint = Color.White,
+                        tint = CasinoDarkFelt,
                         modifier = Modifier.padding(end = 8.dp)
                     )
                     Text(
-                        text = "MULTIPLAYER",
+                        text = "SALAS MULTIJUGADOR",
                         fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }
 
             Text(
-                text = "Components 301 • 2026 • Hockey Game",
-                color = Color.White.copy(alpha = 0.5f),
+                text = "Components 301 • 2026 • Dominó Caos",
+                color = CasinoTextMuted,
                 style = MaterialTheme.typography.bodySmall
             )
         }
